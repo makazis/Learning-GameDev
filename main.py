@@ -41,19 +41,24 @@ class Card:
                     self.sprite.blit(pygame.transform.scale(self.sides[["Back","Front"][not self.front_visible]],(210*size_q,320)),(105*(1-size_q),0))
                 if i["Frames Left"]<0:
                     self.animations.remove(i)
+                    self.front_visible=not self.front_visible
         if self.default_draw:
-            self.sprite.blit(self.sides["Front"],(0,0))
+            self.sprite.blit(self.sides[["Back","Front"][self.front_visible]],(0,0))
 pygame.init()
 win=pygame.display.set_mode((1200,600))
 run=True
 new_card=Card()
-new_card.flip(1000)
+#new_card.flip(1000)
+frame=0
 while run:
+    frame+=1
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
     win.fill((0,0,0)) #Deletes the screen, fills all with black
     new_card.draw()
+    if frame%1200==0:
+        new_card.flip(1000)
     win.blit(new_card.sprite,(100,100))
 
     #win.blit(new_card.sides["Back"],(340,100))
