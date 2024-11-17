@@ -19,10 +19,11 @@ class Card:
         self.sprite=pygame.Surface((210,320))
         self.animations=[]
         self.front_visible=True
-    def flip(self):
+    def flip(self,frames=10):
         self.animations.append({
             "Type":"Flipping",
-            "Frames Left":10
+            "Frames Left":frames,
+            "Max Frames":frames
         })
     def draw(self):
         self.sprite.fill((0,0,0))
@@ -30,22 +31,32 @@ class Card:
         for i in self.animations:
             if i["Type"]=="Flipping":
                 self.default_draw=False
-                
+                i["Frames Left"]-=1
+                if i["Frames Left"]>i["Max Frames"]/2:
+                    size_q=(i["Frames Left"]-i["Max Frames"]/2)/i["Max Frames"]*2
+                    #print(size_q)
+                    self.sprite.blit(pygame.transform.scale(self.sides[["Back","Front"][self.front_visible]],(210*size_q,320)),(105*(1-size_q),0))
+                else:
+                    size_q=1-i["Frames Left"]/i["Max Frames"]*2
+                    self.sprite.blit(pygame.transform.scale(self.sides[["Back","Front"][not self.front_visible]],(210*size_q,320)),(105*(1-size_q),0))
+                if i["Frames Left"]<0:
+                    self.animations.remove(i)
         if self.default_draw:
             self.sprite.blit(self.sides["Front"],(0,0))
 pygame.init()
 win=pygame.display.set_mode((1200,600))
 run=True
 new_card=Card()
+new_card.flip(1000)
 while run:
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
     win.fill((0,0,0)) #Deletes the screen, fills all with black
-    
-    win.blit(new_card.sides["Front"],(100,100))
+    new_card.draw()
+    win.blit(new_card.sprite,(100,100))
 
-    win.blit(new_card.sides["Back"],(340,100))
+    #win.blit(new_card.sides["Back"],(340,100))
 
     pygame.display.update() #Updates the screen
 pygame.quit()
