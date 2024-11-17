@@ -8,4 +8,7 @@ class Card:
             "Back":pygame.Surface((210,320))
         } #2 sides for each card right now, maybe i'll add more later
 
+
+class Card:
+    
 print("HIIIi")
