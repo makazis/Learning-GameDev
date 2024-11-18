@@ -33,12 +33,12 @@ class Card:
             "Max Frames":frames,
             "Custom Flip Side":flip_to_side
         })
-    def draw(self):
-        self.sprite.fill(card_transparency_color)
-        self.default_draw=True
-        for i in self.animations:
-            if i["Type"]=="Flipping":
-                self.default_draw=False
+    def draw(self): #Updates the card sprite, it is recommended this is ran every frame
+        self.sprite.fill(card_transparency_color) 
+        self.default_draw=True #Is the card rendered normally?
+        for i in self.animations: #Iterates through all animations
+            if i["Type"]=="Flipping": 
+                self.default_draw=False #Disables normal rendering
                 i["Frames Left"]-=1
                 if i["Frames Left"]>i["Max Frames"]/2:
                     size_q=sin((i["Frames Left"]/i["Max Frames"]-1/2)*pi) #Don't question it, it works and that's all that matters
@@ -50,14 +50,14 @@ class Card:
                         self.sprite.blit(pygame.transform.scale(self.sides[self.data["Side Order In Flipping"][next_side_flipped]],(210*size_q,320)),(105*(1-size_q),0)) #Displays the side determined in the last line
                     else:
                         self.sprite.blit(pygame.transform.scale(self.sides[i["Custom Flip Side"]],(210*size_q,320)),(105*(1-size_q),0)) #Displays the side determined in the last line
-                if i["Frames Left"]<=0:
+                if i["Frames Left"]<=0: #If the card has finished turning around, the animation is removed
                     self.animations.remove(i)
-                    if i["Custom Flip Side"]==None:
+                    if i["Custom Flip Side"]==None: #Sets the side on top to be the one that was just flipped to
                         self.data["Current Side Flipped"]=(self.data["Current Side Flipped"]+1)%len(self.data["Side Order In Flipping"]) #Just copied from above
                         self.data["Side On Top"]=self.data["Side Order In Flipping"][self.data["Current Side Flipped"]]
                     else:
                         self.data["Side On Top"]=i["Custom Flip Side"]
-        if self.default_draw:
+        if self.default_draw: #renders the card normally
             self.sprite.blit(self.sides[self.data["Side On Top"]],(0,0))
     def side_from_surface(self,surface,side="Front"): #Allows you to set custom images as sides of the card.
         self.sides[side]=surface.subsurface((0,0,210,320)).copy() #Crops to the top left corner
