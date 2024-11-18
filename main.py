@@ -14,7 +14,7 @@ while run:
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
-    win.fill((0,0,0)) #Deletes the screen, fills all with black
+    win.fill((55,55,55)) #Deletes the screen, fills all with black
     new_card.draw()
     if new_card.data["Side On Top"]=="Back" and randint(1,10)==1:
         new_card.flip(1000,"BEWD")

@@ -13,6 +13,7 @@ class Card:
         self.side_from_surface(pygame.image.load("Resources/Sprites/Default/Back.png"),"Back") #Loads in the back side, which i'll change later to something more pretty
 
         self.sprite=pygame.Surface((210,320)) #This is the main sprite in case the card is ever rendered
+        self.sprite.set_colorkey(card_transparency_color)
         self.animations=[] #A list containing all current animations happening on the card
         
         #This is saved as a dict for some real fuckery to be possible further down the line
@@ -22,7 +23,6 @@ class Card:
             "Current Side Flipped":0,
             "Side On Top":"Front"
         }
-        print(self.sides)
     def flip(self,frames=10,flip_to_side=None):
         for i in self.animations:
             if i["Type"]=="Flipping":
@@ -34,7 +34,7 @@ class Card:
             "Custom Flip Side":flip_to_side
         })
     def draw(self):
-        self.sprite.fill((0,0,0))
+        self.sprite.fill(card_transparency_color)
         self.default_draw=True
         for i in self.animations:
             if i["Type"]=="Flipping":
