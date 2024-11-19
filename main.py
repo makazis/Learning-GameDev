@@ -1,28 +1,28 @@
 import pygame
 from math import *
 from random import *
-from card import Card
+from card import *
 pygame.init()
 win=pygame.display.set_mode((1200,600))
 run=True
-new_card=Card()
-new_card.side_from_surface(pygame.image.load("Resources/Sprites/Blue Eyes White Dragon.jpg"),"BEWD")
+cards=[Card() for i in range(5)]
+#new_card=Card()
+#new_card.side_from_surface(pygame.image.load("Resources/Sprites/Blue Eyes White Dragon.jpg"),"BEWD")
 
 frame=0
+clock=pygame.time.Clock()
 while run:
-    frame+=1
+    clock.tick(100)
+
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             run=False
     win.fill((55,55,55)) #Deletes the screen, fills all with black
-    new_card.draw()
-    if new_card.data["Side On Top"]=="Back" and randint(1,10)==1:
-        new_card.flip(1000,"BEWD")
-    else:
-        if new_card.data["Side On Top"]=="BEWD":
-            new_card.flip(1000,"Back")
-        else:
-            new_card.flip(1000)
-    win.blit(new_card.sprite,(100,100))
+    for I,i in enumerate(cards):
+        i.draw()
+        if frame%200==I*20:
+            i.flip(100)
+        center(pygame.transform.rotate(i.sprite,(2-I)*10),win,200+I*130,300+abs(2-I)**2*20)
+    frame+=1
     pygame.display.update() #Updates the screen
 pygame.quit()

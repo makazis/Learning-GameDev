@@ -14,5 +14,5 @@ class Creature:
     def __init__(self,name):
         self.name=name # The Name of the creature, and how it is reffered to in the Creature Library
         self.data=creature_data[self.name] # The data of the creature imported
-        self.card=Card() # A card to represent the creature in hand
+        self.card=Card()
         #self.card.sides["Front"]

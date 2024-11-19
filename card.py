@@ -1,6 +1,4 @@
-from math import *
-from random import *
-import pygame
+from useful_things import *
 card_transparency_overlay=pygame.Surface((210,320))
 card_transparency_overlay.set_colorkey((255,255,255))
 card_transparency_color=(234,23,4)
@@ -23,7 +21,7 @@ class Card:
             "Current Side Flipped":0,
             "Side On Top":"Front"
         }
-    def flip(self,frames=10,flip_to_side=None):
+    def flip(self,frames=10,flip_to_side=None,flip_vertically=False):
         for i in self.animations:
             if i["Type"]=="Flipping":
                 return None #Stops the code if there already exists an animation doing this
@@ -31,7 +29,8 @@ class Card:
             "Type":"Flipping", #What kind of animation is happening
             "Frames Left":frames, #The ammount of frames left before the card is fully flipped
             "Max Frames":frames,
-            "Custom Flip Side":flip_to_side
+            "Custom Flip Side":flip_to_side,
+            "Vertical Flip":flip_vertically
         })
     def draw(self): #Updates the card sprite, it is recommended this is ran every frame
         self.sprite.fill(card_transparency_color) 
@@ -42,14 +41,24 @@ class Card:
                 i["Frames Left"]-=1
                 if i["Frames Left"]>i["Max Frames"]/2:
                     size_q=sin((i["Frames Left"]/i["Max Frames"]-1/2)*pi) #Don't question it, it works and that's all that matters
-                    self.sprite.blit(pygame.transform.scale(self.sides[self.data["Side On Top"]],(210*size_q,320)),(105*(1-size_q),0))
+                    if i["Vertical Flip"]:
+                        self.sprite.blit(pygame.transform.scale(self.sides[self.data["Side On Top"]],(210,320*size_q)),(0,160*(1-size_q)))
+                    else:
+                        self.sprite.blit(pygame.transform.scale(self.sides[self.data["Side On Top"]],(210*size_q,320)),(105*(1-size_q),0))
                 else:
                     size_q=sin((1-i["Frames Left"]/i["Max Frames"]*2)*pi/2) #Just spins the card more accuratelly, assuming it is spinning in a 3d space. (yes i made the equation up, i have no clue what it should look like)
                     if i["Custom Flip Side"]==None:
                         next_side_flipped=(self.data["Current Side Flipped"]+1)%len(self.data["Side Order In Flipping"]) #Takes the next side on order, looping around to the start if neccessary
-                        self.sprite.blit(pygame.transform.scale(self.sides[self.data["Side Order In Flipping"][next_side_flipped]],(210*size_q,320)),(105*(1-size_q),0)) #Displays the side determined in the last line
+                        side_drawn=self.sides[self.data["Side Order In Flipping"][next_side_flipped]]
                     else:
-                        self.sprite.blit(pygame.transform.scale(self.sides[i["Custom Flip Side"]],(210*size_q,320)),(105*(1-size_q),0)) #Displays the side determined in the last line
+                        side_drawn=self.sides[i["Custom Flip Side"]]
+                    if i["Vertical Flip"]:
+                        new_size=(210,size_q*320)
+                        new_pos=(0,160*(1-size_q))
+                    else:
+                        new_size=(210*size_q,320)
+                        new_pos=(105*(1-size_q),0)
+                    self.sprite.blit(pygame.transform.scale(side_drawn,new_size),new_pos) 
                 if i["Frames Left"]<=0: #If the card has finished turning around, the animation is removed
                     self.animations.remove(i)
                     if i["Custom Flip Side"]==None: #Sets the side on top to be the one that was just flipped to
