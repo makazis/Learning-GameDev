@@ -17,8 +17,9 @@ for i in range(5):
         ii*=(1+abs(ii)/20)
         board.add_space_to_board(i*220,ii*330)
 board.setup_hand()
-for i in range(5):
-    board.hand.append(Card())
+for i in range(10):
+    board.locations["Hand"]["Cards"].append(Card())
+    
 frame=0
 clock=pygame.time.Clock()
 while run:
@@ -30,6 +31,8 @@ while run:
     win.fill((55,55,55)) #Deletes the screen, fills all with black
     board.draw()
     board.update()
+    keys=pygame.key.get_pressed()
+    if keys[27]: run=False
     #for I,i in enumerate(cards):
     #    i.draw()
     #    if frame%200==I*20:

@@ -46,11 +46,13 @@ class Board:
         if "Hand" in self.locations:
             self.cards_in_hand=len(self.locations["Hand"]["Cards"])
             curvature_settings=self.locations["Hand"]["Curvature Settings"]
-            for iterated_card in self.locations["Hand"]["Cards"]:
-                current_x=self.locations["Hand"]["Position"][0]-(self.cards_in_hand-1)/2*170 #Determines card position in hand
-                current_y=self.locations["Hand"]["Position"][1]
-                rotation=curvature_settings["Alpha"]
-                center(iterated_card.sprite,self.surface,current_x,current_y)
+            for I,iterated_card in enumerate(self.locations["Hand"]["Cards"]):
+                central_offset=-(self.cards_in_hand-1)/2+I
+                iterated_card.draw()
+                current_x=self.locations["Hand"]["Position"][0]-((self.cards_in_hand-1)/2-I)*170 #Determines card position in hand
+                current_y=self.locations["Hand"]["Position"][1]+curvature_settings["Beta"]
+                rotation=curvature_settings["Alpha"]*(self.locations["Hand"]["Position"][0]+(self.cards_in_hand-1)/2-I)/((self.locations["Hand"]["Max Cards"]-1)/2)
+                center(pygame.transform.rotate(iterated_card.sprite,rotation),self.surface,current_x-self.camera_x,current_y-self.camera_y)
     def update(self): #Updates the board so that 
         self.mouse_rel=pygame.mouse.get_rel()
         self.mouse_down=pygame.mouse.get_pressed()
