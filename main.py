@@ -9,13 +9,11 @@ run=True
 #cards=[Card() for i in range(5)]
 #new_card=Card()
 #new_card.side_from_surface(pygame.image.load("Resources/Sprites/Blue Eyes White Dragon.jpg"),"BEWD")
-board=Board()
+board=Board(win.get_size())
 for i in range(5):
     i-=2
-    for ii in range(4):
-        ii-=1.5
-        ii*=(1+abs(ii)/20)
-        board.add_space_to_board(i*220,ii*330)
+    for ii in range(2):
+        board.add_space_to_board(i*220,(ii-0.5)*330,is_locked=not bool(ii))
 board.setup_hand()
 for i in range(10):
     board.locations["Hand"]["Cards"].append(Card())
@@ -38,7 +36,9 @@ while run:
     #    if frame%200==I*20:
     #        i.flip(100)
     #    center(pygame.transform.rotate(i.sprite,(2-I)*10),win,200+I*130,300+abs(2-I)**2*20)
+    
     win.blit(pygame.transform.scale(board.surface,win.get_size()),(0,0))
+    win.blit(render_text(board.mouse_pos),(0,0))
     frame+=1
     pygame.display.update() #Updates the screen
 pygame.quit()

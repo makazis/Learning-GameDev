@@ -15,6 +15,7 @@ class Creature:
         self.name=name # The Name of the creature, and how it is reffered to in the Creature Library
         self.data=creature_data[self.name] # The data of the creature imported
         self.card=Card()
+        self.card.contains=self
         self.cost=self.data["Cost"]
         #self.card.sides["Front"]
     def update(self):

@@ -21,6 +21,7 @@ class Card:
             "Current Side Flipped":0,
             "Side On Top":"Front"
         }
+        self.vector_space_element=Vector_Element()
     def flip(self,frames=10,flip_to_side=None,flip_vertically=False):
         for i in self.animations:
             if i["Type"]=="Flipping":
