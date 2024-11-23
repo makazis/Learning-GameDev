@@ -3,6 +3,8 @@
         "Health":1,
         "Attack":1
     },
-    "Cost":{}
+    "Cost":{
+        "Mana":1
+    }
     
 }

@@ -15,4 +15,9 @@ class Creature:
         self.name=name # The Name of the creature, and how it is reffered to in the Creature Library
         self.data=creature_data[self.name] # The data of the creature imported
         self.card=Card()
+        self.cost=self.data["Cost"]
         #self.card.sides["Front"]
+    def update(self):
+        pass
+    def update_card(self):
+        self.card.sides["Front"].blit(card_transparency_overlay,(0,0)) #Ran at the end, in case the overlay is missing
