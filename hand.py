@@ -26,12 +26,12 @@ class Board:
         self.mouse_down=[False for i in range(3)]
         self.ctimer=[0,0,0]
         self.click=[False,False,False] #Can accurately detect the first frame when the mouse button is clicked
-    def add_space_to_board(self,x_offset=0,y_offset=0,is_locked=False): #Adds a card spot to the board
+    def add_space_to_board(self,x_offset=0,y_offset=0,required_type=None): #Adds a card spot to the board
         self.locations["Board"].append({
             "Space":Card_Space(),
             "X Offset":x_offset,
             "Y Offset":y_offset,
-            "Locked":is_locked,
+            "Type Needed":required_type,
             })
     def setup_hand(self,max_cards=10):
         self.locations["Hand"]={

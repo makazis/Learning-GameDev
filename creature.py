@@ -13,7 +13,7 @@ for root,dirs,files in os.walk(r"Library/Creatures"): #Looks at every single fol
 class Creature:
     def __init__(self,name):
         self.name=name # The Name of the creature, and how it is reffered to in the Creature Library
-        self.data=creature_data[self.name] # The data of the creature imported
+        self.data=creature_data[self.name].copy() # The data of the creature imported
         self.card=Card()
         self.card.contains=self
         self.cost=self.data["Cost"]
@@ -21,4 +21,5 @@ class Creature:
     def update(self):
         pass
     def update_card(self):
+        self.card.sides["Front"].fill((24,0,24))
         self.card.sides["Front"].blit(card_transparency_overlay,(0,0)) #Ran at the end, in case the overlay is missing

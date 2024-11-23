@@ -13,12 +13,13 @@ board=Board(win.get_size())
 for i in range(5):
     i-=2
     for ii in range(2):
-        board.add_space_to_board(i*220,(ii-0.5)*330,is_locked=not bool(ii))
+        board.add_space_to_board(i*220,(ii-0.5)*330,is_locked=not bool(ii),)
 board.setup_hand()
 for i in range(10):
     board.locations["Hand"]["Cards"].append(Card())
 frame=0
 clock=pygame.time.Clock()
+#blow_up_board=False
 while run:
     clock.tick(100)
 
@@ -30,6 +31,8 @@ while run:
     board.update()
     keys=pygame.key.get_pressed()
     if keys[27]: run=False
+    if keys[pygame.K_SPACE]:
+        frame+=1  
     #for I,i in enumerate(cards):
     #    i.draw()
     #    if frame%200==I*20:
