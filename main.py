@@ -17,7 +17,6 @@ for i in range(5):
 board.setup_hand()
 for i in range(10):
     board.locations["Hand"]["Cards"].append(Card())
-    
 frame=0
 clock=pygame.time.Clock()
 while run:

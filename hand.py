@@ -61,7 +61,7 @@ class Board:
                 card_distance_from_mouse={}
                 for I,iterated_card in enumerate(self.locations["Hand"]["Cards"]):
                     if not iterated_card in [self.locations["Hand"]["Selected Card"],self.locations["Hand"]["Card Rendered On Top"]]:
-                        central_offset=-(self.cards_in_hand-1)/2+I
+                        central_offset=-(self.cards_in_hand-1)/2+I #Used to calculate rotation
                         iterated_card.draw()
                         destination_x=self.locations["Hand"]["Position"][0]-((self.cards_in_hand-1)/2-I)*170 #Determines card position in hand
                         destination_y=self.locations["Hand"]["Position"][1]+abs(central_offset)**curvature_settings["Beta"]*curvature_settings["Gamma"] #This is where the schizophrenia starts. I'll forget how this works once i look away, so i must not look away.
@@ -84,10 +84,7 @@ class Board:
                     #if dist_from_mouse<192: #If is within a circle of the mouse cursor
                     #    self.drag_screen_allowed=False #You can't drag the screen
                 if self.locations["Hand"]["Card Rendered On Top"]!=None: #Brings the topmost rendered card to the very end of the loop, ensuring it is rendered last
-                    try:
-                        I=saved_I
-                    except:
-                        print(self.locations["Hand"]["Cards"].index(self.locations["Hand"]["Card Rendered On Top"]))
+                    I=saved_I
                     iterated_card=self.locations["Hand"]["Card Rendered On Top"]
                     central_offset=-(self.cards_in_hand-1)/2+I
                     iterated_card.draw()

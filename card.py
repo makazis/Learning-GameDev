@@ -19,7 +19,8 @@ class Card:
             #Used to determine card flipping
             "Side Order In Flipping":["Front","Back"], #Standart side order, can be changed if needed. 
             "Current Side Flipped":0,
-            "Side On Top":"Front"
+            "Side On Top":"Front",
+            "Type":"None"
         }
         self.vector_space_element=Vector_Element()
     def flip(self,frames=10,flip_to_side=None,flip_vertically=False):
@@ -73,5 +74,4 @@ class Card:
         self.sides[side]=surface.subsurface((0,0,210,320)).copy() #Crops to the top left corner
         self.sides[side].blit(card_transparency_overlay,(0,0)) #Creates several
         self.sides[side].set_colorkey(card_transparency_color)
-
 
