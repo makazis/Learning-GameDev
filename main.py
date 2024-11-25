@@ -17,12 +17,12 @@ while run:
     win.fill((55,55,55)) #Deletes the screen, fills all with black
     new_card.draw()
     if new_card.data["Side On Top"]=="Back" and randint(1,10)==1:
-        new_card.flip(1000,"BEWD")
+        new_card.flip(100,"BEWD")
     else:
         if new_card.data["Side On Top"]=="BEWD":
-            new_card.flip(1000,"Back")
+            new_card.flip(100,"Back")
         else:
-            new_card.flip(1000)
+            new_card.flip(100,flip_vertically=True)
     win.blit(new_card.sprite,(100,100))
     pygame.display.update() #Updates the screen
 pygame.quit()
