@@ -4,10 +4,15 @@ class Card_Space:
         self.card=None
         self.sprite=pygame.Surface((210,320))
         self.sprite.set_colorkey(card_transparency_color)
+        self.almost_selected=False
     def draw(self):
         if self.card==None:
             self.sprite.fill(card_transparency_color)
-            pygame.draw.rect(self.sprite,(155,255,255),(0,0,210,320),10,15)
+            if self.almost_selected:
+                pygame.draw.rect(self.sprite,(255,255,155),(0,0,210,320),10,15)
+                self.almost_selected=False
+            else:
+                pygame.draw.rect(self.sprite,(155,255,255),(0,0,210,320),10,15)
         else:
             self.card.draw()
             center(self.card.sprite,self.sprite,105,160)
@@ -16,16 +21,20 @@ class Board:
         self.locations={  #Contains all the data about where cards can exist
             "Board":[]
         }
+        self.card_piles=[]
         self.surface=pygame.Surface((1920,1080))
         self.camera_x=-1920/2 
         self.camera_y=-1080/2 #Aligns the center to the center
 
         self.mouse_pos=[0,0] #Set to this for now, as it causes a crash if unset
+        self.r_mouse_pos=[0,0]
         self.mouse_pos_multiplier=[[1920,1080][i]/inherited_screen_size[i] for i in range(2)] #Adjusts the mouse correctly
         self.drag_screen_allowed=True #Sets whether or not if you drag something, it will be dragged across the screen
         self.mouse_down=[False for i in range(3)]
         self.ctimer=[0,0,0]
         self.click=[False,False,False] #Can accurately detect the first frame when the mouse button is clicked
+
+
     def add_space_to_board(self,x_offset=0,y_offset=0,required_type=None): #Adds a card spot to the board
         self.locations["Board"].append({
             "Space":Card_Space(),
@@ -46,6 +55,12 @@ class Board:
             "Card Rendered On Top":None,
             "Selected Card":None
         }
+    def setup_card_pile(self,card_pile_name="Deck",pos=(900,0)):
+        self.locations[card_pile_name]={
+            "Position":pos,
+            "Cards":[]
+        }
+        self.card_piles.append(card_pile_name)
     def draw(self):
         self.drag_screen_allowed=True
         self.surface.fill((5,5,45)) #Fills the board with a nice color to draw on
@@ -54,7 +69,14 @@ class Board:
             #I=self.locations["Board"][i]
             I["Space"].draw()
             center(I["Space"].sprite,self.surface,I["X Offset"]-self.camera_x,I["Y Offset"]-self.camera_y)
+        for iterated_card_pile in self.card_piles: #Draws the top card of every card pile
+            selected_card_pile=self.locations[iterated_card_pile]
+            cards_in_pile=len(selected_card_pile["Cards"])
+            if cards_in_pile>0:
+                selected_card_pile["Cards"][0].draw()
+                center(selected_card_pile["Cards"][0].sprite,self.surface,selected_card_pile["Position"][0]-self.camera_x,selected_card_pile["Position"][1]-self.camera_y)                
         if "Hand" in self.locations:
+            self.locations["Hand"]["Position"]=[self.camera_x+960,self.camera_y+540+500]
             self.cards_in_hand=len(self.locations["Hand"]["Cards"])
             if self.cards_in_hand>0:
                 curvature_settings=self.locations["Hand"]["Curvature Settings"]
@@ -65,7 +87,7 @@ class Board:
                         iterated_card.draw()
                         destination_x=self.locations["Hand"]["Position"][0]-((self.cards_in_hand-1)/2-I)*170 #Determines card position in hand
                         destination_y=self.locations["Hand"]["Position"][1]+abs(central_offset)**curvature_settings["Beta"]*curvature_settings["Gamma"] #This is where the schizophrenia starts. I'll forget how this works once i look away, so i must not look away.
-                        rotation=curvature_settings["Alpha"]*(self.locations["Hand"]["Position"][0]+(self.cards_in_hand-1)/2-I)/((self.locations["Hand"]["Max Cards"]-1)/2)
+                        rotation=curvature_settings["Alpha"]*((self.cards_in_hand-1)/2-I)/((self.locations["Hand"]["Max Cards"]-1)/2)
                         if not iterated_card.vector_space_element.set_up:
                             iterated_card.vector_space_element.setup(destination_x,destination_y)
                         iterated_card.vector_space_element.move_with_easing_motion_to(destination_x,destination_y,20,rotation)
@@ -90,7 +112,7 @@ class Board:
                     iterated_card.draw()
                     destination_x=self.locations["Hand"]["Position"][0]-((self.cards_in_hand-1)/2-I)*170 #Determines card position in hand
                     destination_y=self.locations["Hand"]["Position"][1]+abs(central_offset)**curvature_settings["Beta"]*curvature_settings["Gamma"] #This is where the schizophrenia starts. I'll forget how this works once i look away, so i must not look away.
-                    rotation=curvature_settings["Alpha"]*(self.locations["Hand"]["Position"][0]+(self.cards_in_hand-1)/2-I)/((self.locations["Hand"]["Max Cards"]-1)/2)
+                    rotation=curvature_settings["Alpha"]*((self.cards_in_hand-1)/2-I)/((self.locations["Hand"]["Max Cards"]-1)/2)
                     
                     if not iterated_card.vector_space_element.set_up:
                         iterated_card.vector_space_element.setup(destination_x,destination_y)
@@ -113,9 +135,10 @@ class Board:
                         for iterated_card_space in self.locations["Board"]:
                             distance_from_that_center=dist((iterated_card_space["X Offset"],iterated_card_space["Y Offset"]),
                                                     (self.selected_card.vector_space_element.x,self.selected_card.vector_space_element.y))
-                            if distance_from_that_center<45 and not iterated_card_space["Locked"]:
-                                self.locations["Hand"]["Cards"].remove(self.selected_card)
-                                iterated_card_space["Space"].card=self.selected_card
+                            if distance_from_that_center<45:
+                                if iterated_card_space["Type Needed"]==self.selected_card.parent.type:
+                                    self.locations["Hand"]["Cards"].remove(self.selected_card)
+                                    iterated_card_space["Space"].card=self.selected_card
                                 
                     else:
                         self.drag_screen_allowed=False
@@ -131,10 +154,41 @@ class Board:
         self.mouse_rel=pygame.mouse.get_rel()
         self.mouse_down=pygame.mouse.get_pressed()
         self.mouse_pos=pygame.mouse.get_pos()
-        self.mouse_pos=[self.mouse_pos[i]*self.mouse_pos_multiplier[i] for i in range(2)] #adjusts to the change in resolution
-        self.mouse_pos=[self.mouse_pos[0]+self.camera_x,self.mouse_pos[1]+self.camera_y]
+        self.r_mouse_pos=[self.mouse_pos[i]*self.mouse_pos_multiplier[i] for i in range(2)] #adjusts to the change in resolution
+        self.mouse_pos=[self.r_mouse_pos[0]+self.camera_x,self.r_mouse_pos[1]+self.camera_y]
         if self.mouse_down[0] and self.drag_screen_allowed:
             self.camera_x-=self.mouse_rel[0]
             self.camera_y-=self.mouse_rel[1]
         self.ctimer=[(self.ctimer[i]+1)*self.mouse_down[i] for i in range(3)]
-            
+    def add_plain_card_to_game(self,plain_card,plain_card_type="Creature"): #Adds a new card to the game, returns the created card
+        new_card=Card() 
+        if plain_card_type=="Creature":
+            new_object_manager=Creature(plain_card)
+            new_object_manager.card=new_card
+            new_object_manager.draw() #Draws the new card at the start, so it is visible at all
+            new_card.parent=new_object_manager #Also attributes the parent to whatever is locked inside the card
+            return new_object_manager.card
+    def draw_a_card(self,from_pile="Deck"): #Takes a card from a deck, adds it to the hand, the animation engine itself figures out how to animate that
+        if len(self.locations[from_pile]["Cards"])>0:
+            drawn_card=self.locations[from_pile]["Cards"][0]
+            self.locations[from_pile]["Cards"].pop(0)
+            if len(self.locations["Hand"]["Cards"])<self.locations["Hand"]["Max Cards"]:
+                self.locations["Hand"]["Cards"].append(drawn_card)
+                drawn_card.vector_space_element=Vector_Element()
+                drawn_card.vector_space_element.setup(self.locations[from_pile]["Position"][0],self.locations[from_pile]["Position"][1])
+                drawn_card.flip(40)
+            else:
+                return "Full Hand"
+        else:
+            return "Empty Pile"
+    def import_deck(self,json_deck_list=[],to_card_pile="Deck"): #Imports deck from a decklist
+        # Ideal decklist should be a list consisting of cards in the following format
+        # {"Name":"CARD NAME","Type":"CARD TYPE"}
+        # This doesn't shuffle the deck, so it has to be done manually
+        self.setup_card_pile(to_card_pile)
+        for iterated_card_packed in json_deck_list:
+            new_card=self.add_plain_card_to_game(iterated_card_packed["Name"],iterated_card_packed["Type"])
+            new_card.flip()
+            self.locations[to_card_pile]["Cards"].append(new_card)
+    def shuffle_card_pile(self,card_pile="Deck"):
+        shuffle(self.locations[card_pile]["Cards"])

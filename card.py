@@ -1,9 +1,6 @@
 from useful_things import *
-card_transparency_overlay=pygame.Surface((210,320))
-card_transparency_overlay.set_colorkey((255,255,255))
-card_transparency_color=(234,23,4)
-card_transparency_overlay.fill((card_transparency_color))
-pygame.draw.rect(card_transparency_overlay,(255,255,255),(0,0,210,320),0,15)
+from creature import *
+
 class Card:
     def __init__(self): #Will be called when a new card is created
         self.sides={}
@@ -14,6 +11,7 @@ class Card:
         self.sprite.set_colorkey(card_transparency_color)
         self.animations=[] #A list containing all current animations happening on the card
         
+        self.parent=None
         #This is saved as a dict for some real fuckery to be possible further down the line
         self.data={
             #Used to determine card flipping
@@ -23,7 +21,7 @@ class Card:
             "Type":"None"
         }
         self.vector_space_element=Vector_Element()
-    def flip(self,frames=10,flip_to_side=None,flip_vertically=False):
+    def flip(self,frames=1,flip_to_side=None,flip_vertically=False):
         for i in self.animations:
             if i["Type"]=="Flipping":
                 return None #Stops the code if there already exists an animation doing this
@@ -35,6 +33,8 @@ class Card:
             "Vertical Flip":flip_vertically
         })
     def draw(self): #Updates the card sprite, it is recommended this is ran every frame
+        #if self.parent!=None: #Draws the cards parent first
+        #    self.parent.draw()
         self.sprite.fill(card_transparency_color) 
         self.default_draw=True #Is the card rendered normally?
         for i in self.animations: #Iterates through all animations
@@ -70,8 +70,8 @@ class Card:
                         self.data["Side On Top"]=i["Custom Flip Side"]
         if self.default_draw: #renders the card normally
             self.sprite.blit(self.sides[self.data["Side On Top"]],(0,0))
+        
     def side_from_surface(self,surface,side="Front"): #Allows you to set custom images as sides of the card.
         self.sides[side]=surface.subsurface((0,0,210,320)).copy() #Crops to the top left corner
         self.sides[side].blit(card_transparency_overlay,(0,0)) #Creates several
         self.sides[side].set_colorkey(card_transparency_color)
-

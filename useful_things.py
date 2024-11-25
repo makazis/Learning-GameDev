@@ -37,3 +37,8 @@ class Vector_Element:
         self.x=(self.x*(easing_rate-1)+destination_x)/easing_rate
         self.y=(self.y*(easing_rate-1)+destination_y)/easing_rate
         self.rotation=(self.rotation*(easing_rate-1)+destination_rotation)/easing_rate
+card_transparency_overlay=pygame.Surface((210,320))
+card_transparency_overlay.set_colorkey((255,255,255))
+card_transparency_color=(234,23,4)
+card_transparency_overlay.fill((card_transparency_color))
+pygame.draw.rect(card_transparency_overlay,(255,255,255),(0,0,210,320),0,15)

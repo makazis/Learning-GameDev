@@ -1,0 +1,11 @@
+{
+    "Attributes":{
+        "Health":9,
+        "Attack":6
+    },
+    "Cost":{
+        "Mana":7
+    },
+    "Display Name":"The Crimson Maple",
+    "Image Path":"Library/Creatures/Test Alpha/Sprites/tree.png"
+}
