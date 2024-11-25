@@ -17,6 +17,7 @@ class Creature:
         self.card=Card()
         self.card.contains=self
         self.cost=self.data["Cost"]
+        self.sprite=pygame.Surface((210,320))
         #self.card.sides["Front"]
     def update(self):
         pass
