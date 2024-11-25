@@ -1,5 +1,11 @@
 {
-    "Health":1,
-    "Attack":1,
-    "Cost":{}
+    "Attributes":{
+        "Health":2,
+        "Attack":1
+    },
+    "Cost":{
+        "Mana":1
+    },
+    "Display Name":"The Warrior",
+    "Image Path":"Library/Creatures/Test Alpha/Sprites/Warrior.png"
 }
