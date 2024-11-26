@@ -31,7 +31,6 @@ board.shuffle_card_pile()
 while run:
     if frame<50 and frame%10==1:
         board.draw_a_card()
-        print(board.locations["Hand"]["Cards"][-1].data)
     clock.tick(100)
 
     for event in pygame.event.get():
@@ -39,6 +38,10 @@ while run:
             run=False
     win.fill((55,55,55)) #Deletes the screen, fills all with black
     board.draw()
+    #for i in board.locations["Board"]:
+    #    if i["Space"].card!=None:
+    #        i["Space"].draw()
+    #        i["Space"].card.flip(100)
     board.update()
     keys=pygame.key.get_pressed()
     if keys[27]: run=False  
