@@ -41,6 +41,10 @@ while run:
             run=False
     win.fill((55,55,55)) #Deletes the screen, fills all with black
     board.draw()
+    #for i in board.locations["Board"]:
+    #    if i["Space"].card!=None:
+    #        i["Space"].draw()
+    #        i["Space"].card.flip(100)
     board.update()
     keys=pygame.key.get_pressed()
     if keys[27]: run=False  
