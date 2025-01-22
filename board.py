@@ -34,13 +34,14 @@ class Board:
         self.ctimer=[0,0,0]
         self.click=[False,False,False] #Can accurately detect the first frame when the mouse button is clicked
 
-
-    def add_space_to_board(self,x_offset=0,y_offset=0,required_type=None): #Adds a card spot to the board
+        self.open_GUIs={}
+    def add_space_to_board(self,x_offset=0,y_offset=0,required_type=None,tags={}): #Adds a card spot to the board
         self.locations["Board"].append({
             "Space":Card_Space(),
             "X Offset":x_offset,
             "Y Offset":y_offset,
             "Type Needed":required_type,
+            "Tags":tags
             })
     def setup_hand(self,max_cards=10):
         self.locations["Hand"]={
@@ -68,6 +69,9 @@ class Board:
         for I in self.locations["Board"]:
             #I=self.locations["Board"][i]
             I["Space"].draw()
+            if I["Space"].card!=None:
+                I["Space"].card.vector_space_element.x=I["X Offset"]
+                I["Space"].card.vector_space_element.y=I["Y Offset"]
             center(I["Space"].sprite,self.surface,I["X Offset"]-self.camera_x,I["Y Offset"]-self.camera_y)
         for iterated_card_pile in self.card_piles: #Draws the top card of every card pile
             selected_card_pile=self.locations[iterated_card_pile]
@@ -126,40 +130,68 @@ class Board:
                     
                     if self.mouse_down[0]:
                         self.locations["Hand"]["Selected Card"]=iterated_card
-                if self.locations["Hand"]["Selected Card"]!=None:
-                    self.selected_card=self.locations["Hand"]["Selected Card"]
-                    self.selected_card.vector_space_element.move_with_easing_motion_to(self.mouse_pos[0],self.mouse_pos[1],4,0)
-                    if not self.mouse_down[0]:
-                        self.locations["Hand"]["Selected Card"]=None
-                        self.locations["Hand"]["Card Rendered On Top"]=None
-                        for iterated_card_space in self.locations["Board"]:
-                            distance_from_that_center=dist((iterated_card_space["X Offset"],iterated_card_space["Y Offset"]),
-                                                    (self.selected_card.vector_space_element.x,self.selected_card.vector_space_element.y))
-                            if distance_from_that_center<45:
-                                if iterated_card_space["Type Needed"]==self.selected_card.parent.type:
-                                    self.locations["Hand"]["Cards"].remove(self.selected_card)
-                                    iterated_card_space["Space"].card=self.selected_card
-                                
+                if len(self.open_GUIs)==0: #If there are any other GUIs, cards cannot be interacted with
+                    if self.locations["Hand"]["Selected Card"]!=None:
+                        self.selected_card=self.locations["Hand"]["Selected Card"]
+                        self.selected_card.vector_space_element.move_with_easing_motion_to(self.mouse_pos[0],self.mouse_pos[1],4,0)
+                        if not self.mouse_down[0]:
+                            self.locations["Hand"]["Selected Card"]=None
+                            self.locations["Hand"]["Card Rendered On Top"]=None
+                            for iterated_card_space in self.locations["Board"]:
+                                distance_from_that_center=dist((iterated_card_space["X Offset"],iterated_card_space["Y Offset"]),
+                                                        (self.selected_card.vector_space_element.x,self.selected_card.vector_space_element.y))
+                                if distance_from_that_center<45:
+                                    if iterated_card_space["Type Needed"]==self.selected_card.parent.type:
+                                        self.locations["Hand"]["Cards"].remove(self.selected_card)
+                                        iterated_card_space["Space"].card=self.selected_card
+                                    
+                        else:
+                            self.drag_screen_allowed=False
                     else:
-                        self.drag_screen_allowed=False
-                else:
-                    closest_card_to_mouse_distance=sorted(list(card_distance_from_mouse.keys()))[0]
-                    if closest_card_to_mouse_distance<192 or self.locations["Hand"]["Selected Card"]!=None:
-                        #self.surface.blit(render_text(closest_card_to_mouse_distance,30,(255,0,0)),(200,0))
-                        self.locations["Hand"]["Card Rendered On Top"]=card_distance_from_mouse[closest_card_to_mouse_distance]
-                        self.drag_screen_allowed=False
+                        closest_card_to_mouse_distance=sorted(list(card_distance_from_mouse.keys()))[0]
+                        if closest_card_to_mouse_distance<192 or self.locations["Hand"]["Selected Card"]!=None:
+                            #self.surface.blit(render_text(closest_card_to_mouse_distance,30,(255,0,0)),(200,0))
+                            self.locations["Hand"]["Card Rendered On Top"]=card_distance_from_mouse[closest_card_to_mouse_distance]
+                            self.drag_screen_allowed=False
+                        else:
+                            self.locations["Hand"]["Card Rendered On Top"]=None
+        for iterated_card_space in self.locations["Board"]: #Made just now just to remember how stuff works, and to handle attacking.
+            if not "Interacting With Card On Field" in self.open_GUIs: #Can't open more than 1 GUI at the same time.
+                if "Interactable" in iterated_card_space["Tags"]:  #Checks if the card in this zone can attack
+                    if abs(iterated_card_space["X Offset"]-self.mouse_pos[0])<105 and abs(iterated_card_space["Y Offset"]-self.mouse_pos[1])<160: #Detects if the mouse is currently on the current card
+                        if iterated_card_space["Space"].card!=None: #Checks if a card exists in that space
+                            if self.click[0]:
+                                self.open_GUIs["Interacting With Card On Field"]={
+                                    "Selected Card":iterated_card_space["Space"].card
+                                }
+        if "Interacting With Card On Field" in self.open_GUIs:
+            interacted_card=self.open_GUIs["Interacting With Card On Field"]["Selected Card"]
+            if interacted_card.parent.type=="Creature":
+                possible_actions=["Close"]
+                #A Nice little block checking all the cases for actions that a creature can do. 
+                if interacted_card.parent.attack>0:             possible_actions.append("Attack")
+                for I,i in enumerate(possible_actions):
+                    action_center_x=960-((len(possible_actions)-1)/2-I)*200
+                    pygame.draw.rect(self.surface,(15,15,15),(action_center_x-80,820,160,60),0,10)
+                    center(render_text(i,20,(255,255,255)),self.surface,action_center_x,850)
+                    if not (abs(self.r_mouse_pos[0]-action_center_x)<80 and abs(self.r_mouse_pos[1]-835)<30): #If The mouse hovers over this button
+                        pygame.draw.rect(self.surface,(125,125,125),(action_center_x-80,820,160,60),5,10)
                     else:
-                        self.locations["Hand"]["Card Rendered On Top"]=None
+                        pygame.draw.rect(self.surface,(175,175,125),(action_center_x-80,820,160,60),5,10) #It Gets a different color
+                        if self.click[0]:
+                            if i=="Close":
+                                del self.open_GUIs["Interacting With Card On Field"]
     def update(self): #Updates the board so that 
         self.mouse_rel=pygame.mouse.get_rel()
         self.mouse_down=pygame.mouse.get_pressed()
         self.mouse_pos=pygame.mouse.get_pos()
         self.r_mouse_pos=[self.mouse_pos[i]*self.mouse_pos_multiplier[i] for i in range(2)] #adjusts to the change in resolution
-        self.mouse_pos=[self.r_mouse_pos[0]+self.camera_x,self.r_mouse_pos[1]+self.camera_y]
+        self.mouse_pos=[self.r_mouse_pos[0]+self.camera_x,self.r_mouse_pos[1]+self.camera_y] #adds the position of camera to the mouse, allowing simple access. 
         if self.mouse_down[0] and self.drag_screen_allowed:
             self.camera_x-=self.mouse_rel[0]
             self.camera_y-=self.mouse_rel[1]
         self.ctimer=[(self.ctimer[i]+1)*self.mouse_down[i] for i in range(3)]
+        self.click=[self.ctimer[i]==1 for i in range(3)]
     def add_plain_card_to_game(self,plain_card,plain_card_type="Creature"): #Adds a new card to the game, returns the created card
         new_card=Card() 
         if plain_card_type=="Creature":
@@ -192,3 +224,27 @@ class Board:
             self.locations[to_card_pile]["Cards"].append(new_card)
     def shuffle_card_pile(self,card_pile="Deck"):
         shuffle(self.locations[card_pile]["Cards"])
+    def check_for_target(self,locations=[]):
+        possible_cards=[]
+        #First finds all the cards, then removes all the ones that don't count. 
+        for i in self.locations:
+            if not i in ["Board"]: #Custom Card Location
+                if len(locations)>0:
+                    if i in locations:
+                        #print(i,locations)
+                        for card in self.locations[i]["Cards"]:
+                            possible_cards.append(card)
+                    else:
+                        continue
+                else:
+                    for card in i["Cards"]:
+                        possible_cards.append(card)
+            else:
+                if len(locations)>0:
+                    if "Board" in locations:
+                        for space in self.locations[i]:
+                            if space["Space"].card!=None:
+                                possible_cards.append(space["Space"].card)
+
+        #print(possible_cards)
+        return possible_cards

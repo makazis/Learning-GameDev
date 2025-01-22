@@ -25,6 +25,7 @@ class Creature:
         self.cost=self.data["Cost"]
         self.sprite=pygame.Surface((210,320))
         self.type="Creature" #Used in identifying card types down the road
+        #Thanks past me for creating this
 
         #Adds all the optional data in the creature type file
         if "Image Path" in self.data:       self.image=pygame.transform.scale(pygame.image.load(self.data["Image Path"]),(190,130))

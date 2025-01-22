@@ -10,10 +10,9 @@ run=True
 #new_card=Card()
 #new_card.side_from_surface(pygame.image.load("Resources/Sprites/Blue Eyes White Dragon.jpg"),"BEWD")
 board=Board(win.get_size())
-for i in range(5):
-    i-=2
-    for ii in range(2):
-        board.add_space_to_board(i*220,(ii-0.5)*330,required_type="Creature",)
+for i in range(7):
+    i-=3
+    board.add_space_to_board(i*220,100,required_type="Creature",tags={"Interactable":{}})
 board.setup_hand()
 #for i in range(10):
 #    board.locations["Hand"]["Cards"].append(Card())
@@ -31,8 +30,11 @@ board.shuffle_card_pile()
 while run:
     if frame<50 and frame%10==1:
         board.draw_a_card()
-        print(board.locations["Hand"]["Cards"][-1].data)
+        
+        #print(board.locations["Hand"]["Cards"][-1].data)
     clock.tick(100)
+    cards_in_hand=board.check_for_target(["Hand"])
+    cards_on_board=board.check_for_target(["Board"])
 
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
@@ -47,7 +49,12 @@ while run:
     #    if frame%200==I*20:
     #        i.flip(100)
     #    center(pygame.transform.rotate(i.sprite,(2-I)*10),win,200+I*130,300+abs(2-I)**2*20)
-    
+    #for i in cards_in_hand:
+    #    pygame.draw.circle(board.surface,(255,255,255),(i.x-board.camera_x,i.vector_space_element.y-board.camera_y),200,10)
+    #for i in cards_on_board:
+    #    pygame.draw.circle(board.surface,(0,255,255),
+    #                       (i.vector_space_element.x-board.camera_x,i.vector_space_element.y-board.camera_y),
+    #                       200,10)
     win.blit(pygame.transform.scale(board.surface,win.get_size()),(0,0))
     win.blit(render_text(board.mouse_pos),(0,0))
     frame+=1
