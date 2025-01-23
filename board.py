@@ -1,7 +1,8 @@
 from card import *
 class Card_Space:
-    def __init__(self):
+    def __init__(self,tags={}):
         self.card=None
+        self.tags=tags
         self.sprite=pygame.Surface((210,320))
         self.sprite.set_colorkey(card_transparency_color)
         self.almost_selected=False
@@ -37,7 +38,7 @@ class Board:
         self.open_GUIs={}
     def add_space_to_board(self,x_offset=0,y_offset=0,required_type=None,tags={}): #Adds a card spot to the board
         self.locations["Board"].append({
-            "Space":Card_Space(),
+            "Space":Card_Space(tags),
             "X Offset":x_offset,
             "Y Offset":y_offset,
             "Type Needed":required_type,
